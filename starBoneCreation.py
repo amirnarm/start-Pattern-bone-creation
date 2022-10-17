@@ -16,10 +16,10 @@
 bl_info = {
         "name": "Star PatternBone Creator",
         "description": "create Armature in star pattern",
-        "author": "amirnarm",
+        "author": "amirnarm <amirshnarm@gmail.com>",
         "version": (1, 0),
-        "blender": (3, 00, 0),
-        "location": "Properties > data > Star Bone Creator Addon",
+        "blender": (2, 93, 0),
+        "location": "VIEW3d > Properties > AmirNarm",
         "warning": "", # used for warning icon and text in add-ons panel
         "wiki_url": "http://some.url",
         "tracker_url": "http://tracker.url",
@@ -30,17 +30,6 @@ bl_info = {
 
 import bpy
 import math
-
-
-
-def main(context):
-    
-    angle = 60
-    row = 5
-    
-    bpy.ops.object.armature_add(enter_editmode=False, align='WORLD', location=(0, 0, 0), scale=(1, 1, 1))
-    # function to Create bone, second argument is the angle between bones, and thirt argument is number of necessary bones
-    Bone_Creator(bpy.context.active_object,angle,row)
 
 
 # create bone in star pattern
@@ -89,28 +78,49 @@ class StarArmature(bpy.types.Operator):
     
     """Tooltip"""
     bl_idname = "object.star_armature"
-    bl_label = "Simple Star Armature"
-
+    bl_label = "Star Armature"
+    bl_option = {'REGISTER' , 'UNDO'}
+    
+    angle : bpy.props.IntProperty( name = 'angle', description = 'the angle between two star sides', default = 60, min=1,soft_max=360)
+    row : bpy.props.IntProperty( name = 'row', description = 'the number of row in star bones', default = 5, min=1 , soft_max=10 )
 
     def execute(self, context):
-        main(context)
+        #main(context,self.angle,self.row)
+        bpy.ops.object.armature_add(enter_editmode=False, align='WORLD', location=(0, 0, 0), scale=(1, 1, 1))
+        # function to Create bone, second argument is the angle between bones, and thirt argument is number of necessary bones
+        Bone_Creator(bpy.context.active_object,self.angle,self.row)
+        
         return {'FINISHED'}
+    
+    #def invoke(self, context,event):
+     #   pass
+    #def modal(self, context,event):
+     #   pass    
 
 #def menu_func(self, context):
 #    self.layout.operator(SimpleOperator.bl_idname, text=SimpleOperator.bl_label)
 
 
-#class StarBoneCreatorLayout(bpy.types.Panel):
+class StarBoneCreatorLayout(bpy.types.Panel):
 
-#    bl_label = "Star Bone Creator Addon"
-#    bl_idname = "Star_Bone_Creator_Addon"
-#    bl_space_type = 'PROPERTIES'
-#    bl_region_type = 'WINDOW'
-#    bl_context = "render"
+    bl_label = "Star Bone Creator Addon"
+    bl_idname = "Star_Bone_Creator_Addon"
+    bl_space_type = 'VIEW_3D'
+    #bl_space_type = 'PROPERTIES'
+    bl_region_type = 'UI'
+    bl_category= "AmirNarm"
+    #bl_context = "render"
 
-#    def draw(self, context):
-#        layout = self.layout
-
+    def draw(self, context):
+        layout = self.layout
+        props = layout.operator('object.star_armature', text = 'init Star Armature', icon = 'ARMATURE_DATA')
+        
+        layout.label(text=" Properties:")
+        row = layout.row(align=True)
+        row.prop(props, 'angle')
+        row.prop(props, 'row')        
+        
+            
 #        scene = context.scene
 #        #angle = bpy.props.FloatProperty(name = "angle:")
 #        #row = bpy.props.IntProperty(name = "row:")
@@ -161,20 +171,26 @@ class StarArmature(bpy.types.Operator):
 
 #        row.operator("object.star_armature")
 
+def add_star_armature_menu_draw(self,context):
+    self.layout.operator('object.star_armature')
+
+
 
 def register():
     bpy.utils.register_class(StarArmature)
 
-#    bpy.utils.register_class(StarBoneCreatorLayout)
+    bpy.utils.register_class(StarBoneCreatorLayout)
+    bpy.types.VIEW3D_MT_armature_add.append(add_star_armature_menu_draw)
 
 
 def unregister():
     bpy.utils.unregister_class(StarArmature)
-#    bpy.utils.unregister_class(StarBoneCreatorLayout)
+    bpy.utils.unregister_class(StarBoneCreatorLayout)
+    bpy.types.VIEW3D_MT_armature_add.remove(add_star_armature_menu_draw)
 
 
 if __name__ == "__main__":
     register()
     
     #testCall
-    bpy.ops.object.star_armature()
+    #bpy.ops.object.star_armature()
